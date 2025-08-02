@@ -2,10 +2,30 @@ import httpStatus from "http-status-codes";
 import { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
 import { UserRole } from "../user/user.interface";
+import { User } from "../user/user.model";
 import { IRide, RideStatus } from "./ride.interface";
 import { Ride } from "./ride.model";
 
 const createRide = async (payload: Partial<IRide>) => {
+  const availableDriver = await User.findOne({
+    role: "driver",
+    availability: "online",
+  });
+
+  if (!availableDriver) {
+    throw new AppError(
+      httpStatus.SERVICE_UNAVAILABLE,
+      "No available drivers right now. Please try again later."
+    );
+  }
+
+  payload.driverId = availableDriver._id;
+  payload.status = "requested";
+  payload.requestedAt = new Date();
+
+  availableDriver.availability = "busy";
+  await availableDriver.save();
+
   const ride = await Ride.create(payload);
   return ride;
 };
@@ -117,7 +137,6 @@ const updateRideStatus = async (
 };
 
 const getDriverEarnings = async (driverId: string) => {
-  // শুধু completed ride যেগুলো এই ড্রাইভারের
   const completedRides = await Ride.find({ driverId, status: "completed" });
 
   const totalEarnings = completedRides.reduce(

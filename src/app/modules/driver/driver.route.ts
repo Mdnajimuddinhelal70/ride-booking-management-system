@@ -9,8 +9,13 @@ router.get(
   checkAuth(UserRole.Admin, UserRole.Driver),
   DriverController.getDrivers
 );
+// router.patch(
+//   "/:id/availability",
+//   checkAuth(UserRole.Driver),
+//   DriverController.updateAvailability
+// );
 router.patch(
-  "/:id/availability",
+  "/availability",
   checkAuth(UserRole.Driver),
   DriverController.updateAvailability
 );

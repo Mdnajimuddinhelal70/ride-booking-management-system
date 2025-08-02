@@ -5,6 +5,7 @@ export enum UserRole {
   Driver = "driver",
   Admin = "admin",
 }
+export type AvailabilityStatus = "online" | "offline" | "busy";
 
 export interface IUser {
   _id?: Types.ObjectId;
@@ -15,6 +16,7 @@ export interface IUser {
   address?: string;
   role: UserRole;
   status?: "Active" | "Blocked";
+  availability?: AvailabilityStatus;
   isBlocked?: boolean;
   createdAt?: Date;
   updatedAt?: Date;

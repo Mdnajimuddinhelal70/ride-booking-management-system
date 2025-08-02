@@ -34,6 +34,11 @@ const userSchema = new Schema<IUser>(
     address: {
       type: String,
     },
+    availability: {
+      type: String,
+      enum: ["online", "offline", "busy"],
+      default: "offline",
+    },
   },
   {
     timestamps: true,

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { DriverRoute } from "../modules/driver/driver.route";
-import { RideRoutes } from "../modules/ride/ride.route";
+import { RideRoutes } from "../modules/rider/ride.route";
 import { UserRoutes } from "../modules/user/user.route";
 
 export const router = Router();

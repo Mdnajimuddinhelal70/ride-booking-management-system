@@ -5,7 +5,7 @@ import { RideController } from "./ride.controller";
 
 const router = Router();
 
-router.post("/", checkAuth(UserRole.Rider), RideController.createRide);
+router.post("/request", checkAuth(UserRole.Rider), RideController.createRide);
 
 router.get("/all-rides", checkAuth(UserRole.Admin), RideController.getAllRides);
 

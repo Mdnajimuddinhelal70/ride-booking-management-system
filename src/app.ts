@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandller";
 import notFound from "./app/middlewares/notFound";
 import { router } from "./app/routes";
 
@@ -12,5 +13,6 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-export default app;
+app.use(globalErrorHandler);
 app.use(notFound);
+export default app;

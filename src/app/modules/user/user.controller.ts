@@ -69,6 +69,8 @@ const blockOrUnblockUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// controllers/user.controller.ts
+
 export const UserControllers = {
   createUser,
   getAllUsers,

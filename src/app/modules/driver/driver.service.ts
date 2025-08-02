@@ -1,5 +1,7 @@
 // services/driver.service.ts
 
+import AppError from "../../errorHelpers/AppError";
+import { AvailabilityStatus } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Driver } from "./driver.model";
 
@@ -11,19 +13,39 @@ const getDrivers = async (role: string, email: string) => {
   }
 };
 
+// const updateAvailability = async (
+//   driverId: string,
+//   availability: "online" | "offline"
+// ) => {
+//   const updatedDriver = await User.findOneAndUpdate(
+//     { _id: driverId, role: "driver" },
+//     { availability },
+//     { new: true }
+//   );
+//   if (!updatedDriver) {
+//     throw new Error("Driver not found");
+//   }
+//   return updatedDriver;
+// };
+
 const updateAvailability = async (
   driverId: string,
-  availability: "online" | "offline"
+  availability: AvailabilityStatus
 ) => {
-  const updatedDriver = await User.findOneAndUpdate(
-    { _id: driverId, role: "driver" },
-    { availability },
-    { new: true }
-  );
-  if (!updatedDriver) {
-    throw new Error("Driver not found");
+  const driver = await User.findById(driverId);
+
+  if (!driver) {
+    throw new AppError(404, "Driver not found");
   }
-  return updatedDriver;
+
+  if (driver.role !== "driver") {
+    throw new AppError(403, "Only drivers can update availability");
+  }
+
+  driver.availability = availability;
+  await driver.save();
+
+  return driver;
 };
 
 const updateStatus = async (driverId: string, isApproved: boolean) => {

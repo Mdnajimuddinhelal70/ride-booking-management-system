@@ -1,6 +1,7 @@
 import httpStatus from "http-status-codes";
 // controllers/driver.controller.ts
 import { Request, Response } from "express";
+import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { DriverService } from "./driver.service";
@@ -15,29 +16,47 @@ const getDrivers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// const updateAvailability = catchAsync(async (req: Request, res: Response) => {
+//   const driverId = req.params.id;
+//   const { availability } = req.body;
+
+//   if (availability !== "online" && availability !== "offline") {
+//     return sendResponse(res, {
+//       success: false,
+//       statusCode: httpStatus.BAD_REQUEST,
+//       message: "Invalid availability value",
+//       data: null,
+//     });
+//   }
+
+//   const updatedDriver = await DriverService.updateAvailability(
+//     driverId,
+//     availability
+//   );
+
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: httpStatus.OK,
+//     message: "Driver availability updated successfully",
+//     data: updatedDriver,
+//   });
+// });
+
 const updateAvailability = catchAsync(async (req: Request, res: Response) => {
-  const driverId = req.params.id;
+  const driverId = req.user._id;
   const { availability } = req.body;
 
-  if (availability !== "online" && availability !== "offline") {
-    return sendResponse(res, {
-      success: false,
-      statusCode: httpStatus.BAD_REQUEST,
-      message: "Invalid availability value",
-      data: null,
-    });
+  if (!["online", "offline", "busy"].includes(availability)) {
+    throw new AppError(400, "Invalid availability value");
   }
 
-  const updatedDriver = await DriverService.updateAvailability(
-    driverId,
-    availability
-  );
+  const result = await DriverService.updateAvailability(driverId, availability);
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
-    message: "Driver availability updated successfully",
-    data: updatedDriver,
+    statusCode: 200,
+    message: `Availability updated to ${availability}`,
+    data: result,
   });
 });
 

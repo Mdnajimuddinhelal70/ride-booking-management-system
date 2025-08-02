@@ -8,7 +8,7 @@ import { handleCastError } from "../helpers/handleCastError";
 import { handlerDuplicateError } from "../helpers/handleDuplicateError";
 import { handlerValidationError } from "../helpers/handlerValidationError";
 
-import { TErrorSources } from "../interface/error.types";
+import { TErrorSources } from "../interfaces/error.types";
 
 export const globalErrorHandler = async (
   err: any,
