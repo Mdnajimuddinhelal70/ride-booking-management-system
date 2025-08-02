@@ -1,61 +1,103 @@
-# Ride Booking System API
+# 🚖 Ride Booking System
 
-A basic ride booking and management system built using Node.js, Express, TypeScript, MongoDB, and Mongoose.
+A backend server for a ride booking system built with **TypeScript**, **Express.js**, and **MongoDB**, designed to support **riders**, **drivers**, and **admins**. It includes secure authentication, role-based access, ride management, and more.
 
-## Features
+---
 
-- Rider can request a ride by providing pickup and destination locations.
-- Drivers can update their availability (online/offline).
-- Admin can approve drivers.
-- Rides go through multiple statuses:
-  - requested → accepted → picked_up → in_transit → completed / cancelled
-- Each ride keeps a full status history (with timestamp).
-- Only Admin or Assigned Driver can update the ride status.
-- Role-based authentication: Rider, Driver, Admin.
-- Only authenticated users can access protected routes.
-- Proper validation and error handling.
+## 📌 Project Overview
 
-## User Roles
+This is a complete backend system for a ride booking platform where:
 
-### 1. Rider
+- Riders can request rides.
+- Drivers can accept/reject rides and update statuses.
+- Admins can monitor users and block/unblock any user.
 
-- Can request rides.
-- Can view their own ride history.
+JWT-based authentication, modular code structure, and RESTful APIs ensure clean, scalable architecture.
 
-### 2. Driver
+---
 
-- Can update availability (online/offline).
-- Can update ride status if assigned.
-- Cannot access admin or rider-specific routes.
+## 🚀 Features
 
-### 3. Admin
+- ✅ Rider registration and login
+- ✅ JWT-based authentication & authorization
+- ✅ Role-based route protection (rider, driver, admin)
+- ✅ Request, accept, reject, cancel rides
+- ✅ Track ride status lifecycle
+- ✅ Drivers can update availability
+- ✅ Calculate driver earnings
+- ✅ Admins can block/unblock users
 
-- Can approve drivers.
-- Can update ride statuses.
-- Can block or manage users.
+---
 
-## Core Endpoints (Examples)
+## 🛠 Tech Stack
 
-- `POST /api/v1/auth/register` → User registration
-- `POST /api/v1/auth/login` → Login
-- `POST /api/v1/ride/request` → Rider requests a ride
-- `PATCH /api/v1/ride/status/:rideId` → Admin/Driver updates ride status
-- `PATCH /api/v1/driver/availability/:id` → Driver updates availability
-- `PATCH /api/v1/driver/approve/:id` → Admin approves driver
+- **Language:** TypeScript
+- **Runtime:** Node.js
+- **Framework:** Express.js
+- **Database:** MongoDB with Mongoose
+- **Authentication:** JWT (JSON Web Token)
+- **Hosting:** Vercel (Frontend), Render / Railway (API)
 
-## Business Rules
+---
 
-- Suspended or unapproved drivers cannot accept rides.
-- Only one active ride per rider at a time.
-- Drivers must be online to accept or update rides.
-- Ride status is logged with history.
-- Only allowed statuses are accepted; invalid ones are rejected.
+## 📫 API Endpoints with Descriptions
 
-## Tech Stack
+### 🔐 Auth Endpoints
 
-- Node.js
-- Express.js
-- TypeScript
-- MongoDB + Mongoose
-- JWT for Authentication
-- REST API conventions
+- `POST /api/v1/user/register` → Register a new user (rider, driver)
+- `POST /api/v1/auth/login` → Login and receive JWT token
+
+---
+
+### 👤 User Endpoints
+
+- `GET /api/v1/user/me` → Get current logged-in user info
+- `GET /api/v1/user/all-users` → (Admin only) Get all users
+- `PATCH /api/v1/user/block-unblock/:id` → Block/unblock a user (admin only)
+
+---
+
+### 🚘 Ride Endpoints
+
+- `POST /api/v1/ride/request` → Rider requests a ride (auto-matches with available driver)
+- `PATCH /api/v1/ride/:rideId/cancel` → Cancel a ride by ID (rider only before acceptance)
+- `PATCH /api/v1/ride/:rideId/accept` → Driver accepts ride
+- `PATCH /api/v1/ride/:rideId/reject` → Driver rejects ride
+- `PATCH /api/v1/ride/status/:rideId` → Update ride status (picked_up, in_transit, completed)
+- `GET /api/v1/ride/earnings` → Driver's total earnings
+
+---
+
+### 🚦 Driver Endpoints
+
+- `PATCH /api/v1/driver/availability` → Update driver's availability (online, busy, offline)
+
+---
+
+## 🔗 Live API Base URL
+
+```
+https://ride-booking-system-eta.vercel.app/api/v1
+```
+
+Example Full Route:
+
+```
+https://ride-booking-system-eta.vercel.app/api/v1/ride/request
+```
+
+---
+
+## ✅ Testing Tips
+
+Use Postman or any API testing tool with the following:
+
+- Add token in Authorization header → `Bearer <accessToken>`
+- Use proper method (GET, POST, PATCH)
+- Send JSON body for POST/PATCH requests
+
+---
+
+## 🙌 Author
+
+- **Najim Uddin Helal** — Backend Developer
