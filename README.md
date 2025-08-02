@@ -77,7 +77,7 @@ JWT-based authentication, modular code structure, and RESTful APIs ensure clean,
 ## 🔗 Live API Base URL
 
 ```
-https://ride-booking-system-eta.vercel.app/api/v1
+https://ride-booking-system-eta.vercel.app
 ```
 
 Example Full Route:
@@ -98,6 +98,4 @@ Use Postman or any API testing tool with the following:
 
 ---
 
-## 🙌 Author
-
-- **Najim Uddin Helal** — Backend Developer
+- **Najim Uddin Helal** —Next-level Student
