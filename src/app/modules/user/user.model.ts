@@ -6,12 +6,14 @@ const userSchema = new Schema<IUser>(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -22,14 +24,17 @@ const userSchema = new Schema<IUser>(
       enum: Object.values(UserRole),
       default: UserRole.Rider,
     },
+    status: {
+      type: String,
+      enum: ["Active", "Blocked"],
+      default: "Active",
+    },
     isBlocked: {
       type: Boolean,
       default: false,
     },
-
     phoneNumber: {
       type: String,
-      required: true,
     },
     address: {
       type: String,
@@ -38,6 +43,16 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ["online", "offline", "busy"],
       default: "offline",
+    },
+    authProvider: {
+      provider: {
+        type: String,
+        enum: ["google", "credentials"],
+        default: "credentials",
+      },
+      providerId: {
+        type: String,
+      },
     },
   },
   {

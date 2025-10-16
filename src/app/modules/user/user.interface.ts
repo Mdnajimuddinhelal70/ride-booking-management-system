@@ -5,6 +5,12 @@ export enum UserRole {
   Driver = "driver",
   Admin = "admin",
 }
+
+export interface IAuthProvider {
+  provider: "google" | "credentials";
+  providerId: string;
+}
+
 export type AvailabilityStatus = "online" | "offline" | "busy";
 
 export interface IUser {
@@ -18,6 +24,7 @@ export interface IUser {
   status?: "Active" | "Blocked";
   availability?: AvailabilityStatus;
   isBlocked?: boolean;
+  authProvider?: IAuthProvider;
   createdAt?: Date;
   updatedAt?: Date;
 }

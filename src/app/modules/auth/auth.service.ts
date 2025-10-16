@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
-import { generateToken } from "../../utils/jwt";
+import { createUserTokens } from "../../utils/userTokens";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
-import { envVars } from "./../../config/env";
 
 const credentialsLogin = async (payload: Partial<IUser>) => {
   const { email, password } = payload;
@@ -20,30 +20,17 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
     isUserExist.password as string
   );
 
-  if (!email || !password) {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Email and Password are required"
-    );
-  }
-
   if (!isPasswordMatched) {
     throw new AppError(httpStatus.BAD_REQUEST, "Incorrect Password");
   }
-  const jwtPayload = {
-    userId: isUserExist._id,
-    email: isUserExist.email,
-    role: isUserExist.role,
-  };
 
-  const accessToken = generateToken(
-    jwtPayload,
-    envVars.JWT_ACCESS_SECRET,
-    envVars.JWT_ACCESS_EXPIRES
-  );
+  const userToken = createUserTokens(isUserExist); //!created token from utils
+
+  const { password: pass, ...rest } = isUserExist.toObject();
 
   return {
-    accessToken,
+    accessToken: userToken.accessToken,
+    ...rest,
   };
 };
 
