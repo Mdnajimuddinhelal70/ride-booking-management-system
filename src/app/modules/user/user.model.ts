@@ -42,7 +42,7 @@ const userSchema = new Schema<IUser>(
     availability: {
       type: String,
       enum: ["online", "offline", "busy"],
-      default: "offline",
+      default: "online",
     },
     authProvider: {
       provider: {

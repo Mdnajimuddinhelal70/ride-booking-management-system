@@ -34,6 +34,11 @@ const getAllRides = async (): Promise<IRide[]> => {
   return await Ride.find().populate("riderId driverId");
 };
 
+const getRideHistory = async (riderEmail: string) => {
+  const rides = await Ride.find({ riderEmail }).sort({ createdAt: -1 });
+  return rides;
+};
+
 const cancelRide = async (rideId: string, userId: string) => {
   const ride = await Ride.findById(rideId);
 
@@ -159,4 +164,5 @@ export const RideService = {
   rejectRide,
   updateRideStatus,
   getDriverEarnings,
+  getRideHistory,
 };

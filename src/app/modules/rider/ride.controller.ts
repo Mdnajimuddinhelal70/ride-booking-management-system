@@ -8,9 +8,11 @@ import { RideService } from "./ride.service";
 const createRide = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const riderId = req.user._id;
+    const riderEmail = req.user.email;
     const ridePayload = {
       ...req.body,
       riderId,
+      riderEmail,
     };
 
     const result = await RideService.createRide(ridePayload);
@@ -32,6 +34,19 @@ const getAllRides = catchAsync(
       success: true,
       statusCode: httpStatus.OK,
       message: "All rides retrieved successfully!",
+      data: result,
+    });
+  }
+);
+
+const getRideHistory = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const riderEmail = req.user.email;
+    const result = await RideService.getRideHistory(riderEmail);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Ride history fetched successfully",
       data: result,
     });
   }
@@ -123,4 +138,5 @@ export const RideController = {
   rejectRide,
   updateRideStatus,
   getDriverEarningsController,
+  getRideHistory,
 };

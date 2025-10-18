@@ -23,6 +23,7 @@ export interface IRide {
   statusHistory?: IStatusHistory[];
 
   ridePrice: number;
+  riderEmail: string;
 
   riderId: Types.ObjectId;
   driverId?: Types.ObjectId | string | null;

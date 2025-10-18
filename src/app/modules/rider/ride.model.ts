@@ -42,6 +42,10 @@ const rideSchema = new Schema<IRide>(
 
     riderId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     ridePrice: { type: Number, default: 0 },
+    riderEmail: {
+      type: String,
+      required: true,
+    },
     driverId: { type: Schema.Types.ObjectId, ref: "User", default: null },
 
     requestedAt: { type: Date, default: Date.now },
