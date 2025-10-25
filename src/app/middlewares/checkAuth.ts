@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppError";
@@ -28,10 +27,10 @@ export const checkAuth =
         envVars.JWT_ACCESS_SECRET
       ) as JwtPayload;
 
-      const isUserExist = await User.findOne({ email: verifiedToken.email });
+      const user = await User.findById(verifiedToken.userId);
 
-      if (!isUserExist) {
-        throw new AppError(httpStatus.BAD_REQUEST, "User does not exist");
+      if (!user) {
+        throw new AppError(404, "User not found");
       }
 
       if (authRoles.length && !authRoles.includes(verifiedToken.role)) {
@@ -39,9 +38,9 @@ export const checkAuth =
       }
 
       req.user = {
-        _id: isUserExist._id,
-        email: isUserExist.email,
-        role: isUserExist.role,
+        id: user._id.toString(),
+        email: user.email,
+        role: user.role,
       };
 
       next();

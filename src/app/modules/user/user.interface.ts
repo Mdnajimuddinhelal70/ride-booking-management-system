@@ -18,6 +18,8 @@ export interface IUser {
   name: string;
   email: string;
   password?: string;
+  oldPassword: string;
+  newPassword: string;
   phoneNumber?: string;
   address?: string;
   role: UserRole;

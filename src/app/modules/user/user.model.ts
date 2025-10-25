@@ -3,11 +3,7 @@ import { IUser, UserRole } from "./user.interface";
 
 const userSchema = new Schema<IUser>(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
     email: {
       type: String,
       required: true,
@@ -15,30 +11,16 @@ const userSchema = new Schema<IUser>(
       lowercase: true,
       trim: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
+    password: { type: String, required: true },
     role: {
       type: String,
       enum: Object.values(UserRole),
       default: UserRole.Rider,
     },
-    status: {
-      type: String,
-      enum: ["Active", "Blocked"],
-      default: "Active",
-    },
-    isBlocked: {
-      type: Boolean,
-      default: false,
-    },
-    phoneNumber: {
-      type: String,
-    },
-    address: {
-      type: String,
-    },
+    status: { type: String, enum: ["Active", "Blocked"], default: "Active" },
+    isBlocked: { type: Boolean, default: false },
+    phoneNumber: { type: String },
+    address: { type: String },
     availability: {
       type: String,
       enum: ["online", "offline", "busy"],
@@ -50,9 +32,7 @@ const userSchema = new Schema<IUser>(
         enum: ["google", "credentials"],
         default: "credentials",
       },
-      providerId: {
-        type: String,
-      },
+      providerId: { type: String },
     },
   },
   {

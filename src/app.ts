@@ -8,24 +8,14 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://ride-booking-system-eta.vercel.app",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
-// app.options("*", cors());
-
-// app.use(
-//   cors({
-//     origin: envVars.FRONTEND_URL,
-//     credentials: true,
-//   })
-// );
 
 app.use("/api/v1", router);
 

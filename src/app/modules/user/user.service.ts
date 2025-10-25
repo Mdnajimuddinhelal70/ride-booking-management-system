@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import { envVars } from "../../config/env";
@@ -61,19 +62,46 @@ const getUserById = async (id: string): Promise<IUser | null> => {
   return await User.findById(id);
 };
 
-const updateProfile = async (userId: string, payload: Partial<IUser>) => {
+const updateProfile = async (
+  userId: string,
+  payload: Partial<IUser> & { oldPassword?: string; newPassword?: string }
+) => {
   const user = await User.findById(userId);
 
   if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
 
+  // Update name and phone number
   if (payload.name) user.name = payload.name;
   if (payload.phoneNumber) user.phoneNumber = payload.phoneNumber;
 
-  const updateUser = await user.save();
-  return updateUser;
+  // Change password if requested
+  if (payload.newPassword) {
+    if (!payload.oldPassword) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Old password is required to change password."
+      );
+    }
+
+    const isOldPasswordCorrect = await bcryptjs.compare(
+      payload.oldPassword,
+      user.password!
+    );
+    if (!isOldPasswordCorrect) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Old password is incorrect.");
+    }
+
+    // Hash the new password
+    const hashedNewPassword = await bcryptjs.hash(payload.newPassword, 10);
+    user.password = hashedNewPassword;
+  }
+
+  const updatedUser = await user.save();
+  return updatedUser;
 };
+
 const blockOrUnblockUser = async (userId: string, blockStatus: boolean) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
@@ -85,9 +113,10 @@ const blockOrUnblockUser = async (userId: string, blockStatus: boolean) => {
 
 const getMe = async (userId: string) => {
   const user = await User.findById(userId).select("-password");
-  return {
-    data: user,
-  };
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
 };
 
 export const UserService = {
