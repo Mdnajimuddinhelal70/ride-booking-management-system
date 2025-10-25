@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { UserService } from "./user.service";
@@ -69,11 +70,39 @@ const blockOrUnblockUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// controllers/user.controller.ts
+const getMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload;
+    const result = await UserService.getMe(decodedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "Your profile Retrieved Successfully",
+      data: result.data,
+    });
+  }
+);
+
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user._id;
+  const { name, phoneNumber } = req.body;
+
+  const result = await UserService.updateProfile(userId, { name, phoneNumber });
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Profile updated successfully!",
+    data: result,
+  });
+});
 
 export const UserControllers = {
   createUser,
   getAllUsers,
   getMyProfile,
   blockOrUnblockUser,
+  getMe,
+  updateProfile,
 };

@@ -11,8 +11,13 @@ router.get(
   checkAuth(UserRole.Admin),
   UserControllers.getAllUsers
 );
-router.get("/me", checkAuth(), UserControllers.getMyProfile);
+router.patch(
+  "/update-profile",
+  checkAuth(...Object.values(UserRole)),
+  UserControllers.updateProfile
+);
 
+router.get("/me", checkAuth(...Object.values(UserRole)), UserControllers.getMe);
 router.patch(
   "/block-unblock/:id",
   checkAuth(UserRole.Admin),

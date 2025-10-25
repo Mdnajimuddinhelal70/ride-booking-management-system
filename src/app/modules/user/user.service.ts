@@ -61,6 +61,19 @@ const getUserById = async (id: string): Promise<IUser | null> => {
   return await User.findById(id);
 };
 
+const updateProfile = async (userId: string, payload: Partial<IUser>) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User Not Found!");
+  }
+
+  if (payload.name) user.name = payload.name;
+  if (payload.phoneNumber) user.phoneNumber = payload.phoneNumber;
+
+  const updateUser = await user.save();
+  return updateUser;
+};
 const blockOrUnblockUser = async (userId: string, blockStatus: boolean) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
@@ -70,9 +83,18 @@ const blockOrUnblockUser = async (userId: string, blockStatus: boolean) => {
   return updatedUser;
 };
 
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user,
+  };
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
   getUserById,
   blockOrUnblockUser,
+  getMe,
+  updateProfile,
 };
