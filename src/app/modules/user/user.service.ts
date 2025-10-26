@@ -62,10 +62,7 @@ const getUserById = async (id: string): Promise<IUser | null> => {
   return await User.findById(id);
 };
 
-const updateProfile = async (
-  userId: string,
-  payload: Partial<IUser> & { oldPassword?: string; newPassword?: string }
-) => {
+const updateProfile = async (userId: string, payload: Partial<IUser>) => {
   const user = await User.findById(userId);
 
   if (!user) {
@@ -73,8 +70,12 @@ const updateProfile = async (
   }
 
   // Update name and phone number
-  if (payload.name) user.name = payload.name;
-  if (payload.phoneNumber) user.phoneNumber = payload.phoneNumber;
+  if (payload.name) {
+    user.name = payload.name;
+  }
+  if (payload.phoneNumber) {
+    user.phoneNumber = payload.phoneNumber;
+  }
 
   // Change password if requested
   if (payload.newPassword) {
@@ -94,7 +95,11 @@ const updateProfile = async (
     }
 
     // Hash the new password
-    const hashedNewPassword = await bcryptjs.hash(payload.newPassword, 10);
+    const saltRounds = Number(envVars.BCRYPT_SALT_ROUND);
+    const hashedNewPassword = await bcryptjs.hash(
+      payload.newPassword,
+      saltRounds
+    );
     user.password = hashedNewPassword;
   }
 

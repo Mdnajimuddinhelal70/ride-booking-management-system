@@ -70,7 +70,7 @@ const blockOrUnblockUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateProfile = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
   const { name, phoneNumber, oldPassword, newPassword } = req.body;
 
   const updatedUser = await UserService.updateProfile(userId, {
