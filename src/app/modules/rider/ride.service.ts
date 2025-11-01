@@ -1,9 +1,7 @@
 import httpStatus from "http-status-codes";
-import { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
-import { UserRole } from "../user/user.interface";
 import { User } from "../user/user.model";
-import { IRide, RideStatus } from "./ride.interface";
+import { IRide } from "./ride.interface";
 import { Ride } from "./ride.model";
 
 const createRide = async (payload: Partial<IRide>) => {
@@ -68,76 +66,93 @@ const cancelRide = async (rideId: string, userId: string) => {
   return ride;
 };
 
-const acceptRide = async (rideId: string, driverId: string) => {
-  const ride = await Ride.findById(rideId);
+// const acceptRide = async (rideId: string, driverId: string) => {
+//   const ride = await Ride.findById(rideId);
 
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
-  }
+//   if (!ride) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
+//   }
 
-  if (ride.status !== "requested") {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Ride is not available for acceptance"
-    );
-  }
+//   if (ride.status !== "requested") {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       "Ride is not available for acceptance"
+//     );
+//   }
 
-  ride.status = "accepted";
-  ride.driverId = new Types.ObjectId(driverId);
-  await ride.save();
+//   ride.status = "accepted";
+//   ride.driverId = new Types.ObjectId(driverId);
+//   await ride.save();
 
-  return ride;
-};
+//   return ride;
+// };
 
-const rejectRide = async (rideId: string, driverId: string) => {
-  const ride = await Ride.findById(rideId);
+// const rejectRide = async (rideId: string, driverId: string) => {
+//   const ride = await Ride.findById(rideId);
 
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
-  }
+//   if (!ride) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
+//   }
 
-  if (ride.status !== "requested") {
-    throw new AppError(
-      httpStatus.BAD_REQUEST,
-      "Ride is not available for rejection"
-    );
-  }
+//   if (ride.status !== "requested") {
+//     throw new AppError(
+//       httpStatus.BAD_REQUEST,
+//       "Ride is not available for rejection"
+//     );
+//   }
 
-  ride.status = "rejected";
-  ride.driverId = new Types.ObjectId(driverId).toString();
-  await ride.save();
+//   ride.status = "rejected";
+//   ride.driverId = new Types.ObjectId(driverId).toString();
+//   await ride.save();
 
-  return ride;
-};
+//   return ride;
+// };
+
+// const updateRideStatus = async (
+//   rideId: string,
+//   status: RideStatus,
+//   userRole: string,
+//   userId: string
+// ) => {
+//   let ride;
+
+//   if (userRole === UserRole.Admin) {
+//     ride = await Ride.findById(rideId);
+//   } else if (userRole === UserRole.Driver) {
+//     ride = await Ride.findOne({ _id: rideId, driverId: userId });
+//   }
+
+//   if (!ride) {
+//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found or access denied");
+//   }
+
+//   const historyEntry = {
+//     status,
+//     updatedAt: new Date(),
+//   };
+
+//   ride.statusHistory = ride.statusHistory || [];
+//   ride.statusHistory.push(historyEntry);
+//   ride.status = status;
+
+//   await ride.save();
+//   return ride;
+// };
 
 const updateRideStatus = async (
   rideId: string,
-  status: RideStatus,
-  userRole: string,
-  userId: string
+  driverId: string,
+  action: "accept" | "reject"
 ) => {
-  let ride;
+  const ride = await Ride.findById(rideId);
+  if (!ride) throw new AppError(404, "Ride not found");
+  if (ride.status !== "requested")
+    throw new AppError(400, "Ride is not available");
 
-  if (userRole === UserRole.Admin) {
-    ride = await Ride.findById(rideId);
-  } else if (userRole === UserRole.Driver) {
-    ride = await Ride.findOne({ _id: rideId, driverId: userId });
-  }
-
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found or access denied");
-  }
-
-  const historyEntry = {
-    status,
-    updatedAt: new Date(),
-  };
-
-  ride.statusHistory = ride.statusHistory || [];
-  ride.statusHistory.push(historyEntry);
-  ride.status = status;
-
+  ride.status = action === "accept" ? "accepted" : "rejected";
+  ride.driverId = driverId;
   await ride.save();
+
   return ride;
 };
 
@@ -160,8 +175,6 @@ export const RideService = {
   createRide,
   getAllRides,
   cancelRide,
-  acceptRide,
-  rejectRide,
   updateRideStatus,
   getDriverEarnings,
   getRideHistory,

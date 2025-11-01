@@ -21,20 +21,11 @@ router.patch(
 );
 
 router.patch(
-  "/:id/accept",
+  ":id/action",
   checkAuth(UserRole.Driver),
-  RideController.acceptRide
+  RideController.handleRideAction
 );
-router.patch(
-  "/:id/reject",
-  checkAuth(UserRole.Driver),
-  RideController.rejectRide
-);
-router.patch(
-  "/status/:rideId",
-  checkAuth(UserRole.Driver, UserRole.Admin),
-  RideController.updateRideStatus
-);
+
 router.get(
   "/earnings",
   checkAuth(UserRole.Driver),
