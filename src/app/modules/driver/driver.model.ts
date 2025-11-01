@@ -15,7 +15,7 @@ const driverSchema = new Schema<IDriver>(
     },
     availability: {
       type: String,
-      enum: ["online", "offline"],
+      enum: ["online", "offline", "busy"],
       default: "offline",
     },
     totalEarnings: {

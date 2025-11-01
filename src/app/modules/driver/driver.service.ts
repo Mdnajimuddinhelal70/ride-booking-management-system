@@ -32,7 +32,7 @@ const updateAvailability = async (
   driverId: string,
   availability: AvailabilityStatus
 ) => {
-  const driver = await User.findById(driverId);
+  const driver = await User.findById(driverId).select("+availability");
 
   if (!driver) {
     throw new AppError(404, "Driver not found");
@@ -45,7 +45,12 @@ const updateAvailability = async (
   driver.availability = availability;
   await driver.save();
 
-  return driver;
+  return {
+    _id: driver._id,
+    name: driver.name,
+    role: driver.role,
+    availability: driver.availability,
+  };
 };
 
 const updateStatus = async (driverId: string, isApproved: boolean) => {

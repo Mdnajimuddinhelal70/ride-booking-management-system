@@ -16,37 +16,17 @@ const getDrivers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// const updateAvailability = catchAsync(async (req: Request, res: Response) => {
-//   const driverId = req.params.id;
-//   const { availability } = req.body;
-
-//   if (availability !== "online" && availability !== "offline") {
-//     return sendResponse(res, {
-//       success: false,
-//       statusCode: httpStatus.BAD_REQUEST,
-//       message: "Invalid availability value",
-//       data: null,
-//     });
-//   }
-
-//   const updatedDriver = await DriverService.updateAvailability(
-//     driverId,
-//     availability
-//   );
-
-//   sendResponse(res, {
-//     success: true,
-//     statusCode: httpStatus.OK,
-//     message: "Driver availability updated successfully",
-//     data: updatedDriver,
-//   });
-// });
-
 const updateAvailability = catchAsync(async (req: Request, res: Response) => {
-  const driverId = req.user._id;
-  const { availability } = req.body;
+  const driverId = req.user.id;
 
-  if (!["online", "offline", "busy"].includes(availability)) {
+  const { availability } = req.body || {};
+  const ALLOWED_AVAILABILITY = ["online", "offline", "busy"];
+
+  if (availability === undefined) {
+    throw new AppError(400, "Availability is required");
+  }
+
+  if (!ALLOWED_AVAILABILITY.includes(availability)) {
     throw new AppError(400, "Invalid availability value");
   }
 
