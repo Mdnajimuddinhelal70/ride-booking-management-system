@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import AppError from "../../errorHelpers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { Ride } from "../rider/ride.model";
 import { DriverService } from "./driver.service";
 
 const getDrivers = catchAsync(async (req: Request, res: Response) => {
@@ -40,6 +41,16 @@ const updateAvailability = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getRequestedRides = catchAsync(async (req, res) => {
+  const rides = await Ride.find({ status: "requested" }).populate("riderId");
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Requested rides fetched successfully",
+    data: rides,
+  });
+});
+
 const updateStatus = catchAsync(async (req: Request, res: Response) => {
   const driverId = req.params.id;
   const { isApproved } = req.body;
@@ -67,4 +78,5 @@ export const DriverController = {
   getDrivers,
   updateAvailability,
   updateStatus,
+  getRequestedRides,
 };

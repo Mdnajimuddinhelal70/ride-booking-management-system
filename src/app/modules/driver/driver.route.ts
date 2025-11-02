@@ -10,11 +10,8 @@ router.get(
   DriverController.getDrivers
 );
 
-// router.patch(
-//   "/:id/availability",
-//   checkAuth(UserRole.Driver),
-//   DriverController.updateAvailability
-// );
+router.get("/requested", DriverController.getRequestedRides);
+
 router.patch(
   "/availability",
   checkAuth(UserRole.Driver),

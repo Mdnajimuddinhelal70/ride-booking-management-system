@@ -1,6 +1,7 @@
 // services/driver.service.ts
 
 import AppError from "../../errorHelpers/AppError";
+import { Ride } from "../rider/ride.model";
 import { AvailabilityStatus } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { Driver } from "./driver.model";
@@ -13,20 +14,9 @@ const getDrivers = async (role: string, email: string) => {
   }
 };
 
-// const updateAvailability = async (
-//   driverId: string,
-//   availability: "online" | "offline"
-// ) => {
-//   const updatedDriver = await User.findOneAndUpdate(
-//     { _id: driverId, role: "driver" },
-//     { availability },
-//     { new: true }
-//   );
-//   if (!updatedDriver) {
-//     throw new Error("Driver not found");
-//   }
-//   return updatedDriver;
-// };
+const getRequestedRide = async () => {
+  return await Ride.find({ status: "requested" });
+};
 
 const updateAvailability = async (
   driverId: string,
@@ -68,4 +58,5 @@ export const DriverService = {
   getDrivers,
   updateAvailability,
   updateStatus,
+  getRequestedRide,
 };

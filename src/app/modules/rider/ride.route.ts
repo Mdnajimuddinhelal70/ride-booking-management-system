@@ -5,9 +5,17 @@ import { RideController } from "./ride.controller";
 
 const router = Router();
 
-router.post("/request", checkAuth(UserRole.Rider), RideController.createRide);
+router.post(
+  "/request",
+  checkAuth(UserRole.Rider),
+  RideController.createRideRequest
+);
 
-router.get("/all-rides", checkAuth(UserRole.Admin), RideController.getAllRides);
+router.get(
+  "/all-rides",
+  checkAuth(UserRole.Admin, UserRole.Driver),
+  RideController.getAllRides
+);
 
 router.get(
   "/rideHistory",

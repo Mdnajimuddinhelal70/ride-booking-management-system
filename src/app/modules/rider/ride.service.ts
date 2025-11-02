@@ -4,7 +4,7 @@ import { User } from "../user/user.model";
 import { IRide } from "./ride.interface";
 import { Ride } from "./ride.model";
 
-const createRide = async (payload: Partial<IRide>) => {
+const createRideRequest = async (payload: Partial<IRide>) => {
   const availableDriver = await User.findOne({
     role: "driver",
     availability: "online",
@@ -28,8 +28,8 @@ const createRide = async (payload: Partial<IRide>) => {
   return ride;
 };
 
-const getAllRides = async (): Promise<IRide[]> => {
-  return await Ride.find().populate("riderId driverId");
+const getAllRides = async () => {
+  return await Ride.find();
 };
 
 const getRideHistory = async (riderEmail: string) => {
@@ -172,7 +172,7 @@ const getDriverEarnings = async (driverId: string) => {
 };
 
 export const RideService = {
-  createRide,
+  createRideRequest,
   getAllRides,
   cancelRide,
   updateRideStatus,

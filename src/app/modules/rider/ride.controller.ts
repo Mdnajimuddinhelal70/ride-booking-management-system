@@ -6,7 +6,7 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { RideService } from "./ride.service";
 
-const createRide = catchAsync(
+const createRideRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const riderId = req.user._id;
     const riderEmail = req.user.email;
@@ -16,7 +16,7 @@ const createRide = catchAsync(
       riderEmail,
     };
 
-    const result = await RideService.createRide(ridePayload);
+    const result = await RideService.createRideRequest(ridePayload);
 
     sendResponse(res, {
       success: true,
@@ -154,7 +154,7 @@ const getDriverEarningsController = catchAsync(
 );
 
 export const RideController = {
-  createRide,
+  createRideRequest,
   getAllRides,
   cancelRide,
   handleRideAction,
