@@ -49,7 +49,6 @@ const rideSchema = new Schema<IRide>(
     driverId: { type: Schema.Types.ObjectId, ref: "User", default: null },
 
     requestedAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date },
   },
   {
     timestamps: true,

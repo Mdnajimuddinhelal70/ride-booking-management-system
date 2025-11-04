@@ -8,7 +8,7 @@ import { RideService } from "./ride.service";
 
 const createRideRequest = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const riderId = req.user._id;
+    const riderId = req.user.id;
     const riderEmail = req.user.email;
     const ridePayload = {
       ...req.body,
@@ -53,80 +53,16 @@ const getRideHistory = catchAsync(
   }
 );
 
-const cancelRide = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-    const userId = req.user._id;
-
-    const result = await RideService.cancelRide(id, userId);
-
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "Ride cancelled successfully!",
-      data: result,
-    });
-  }
-);
-
-// const acceptRide = catchAsync(async (req: Request, res: Response) => {
-//   const rideId = req.params.id;
-//   const driverId = req.user._id;
-
-//   const result = await RideService.acceptRide(rideId, driverId);
-
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: "Ride accepted successfully!",
-//     data: result,
-//   });
-// });
-
-// const rejectRide = catchAsync(async (req: Request, res: Response) => {
-//   const { id: rideId } = req.params;
-//   const driverId = req.user._id;
-
-//   const result = await RideService.rejectRide(rideId, driverId);
-
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: "Ride rejected successfully!",
-//     data: result,
-//   });
-// });
-
-// const updateRideStatus = catchAsync(async (req, res) => {
-//   const rideId = req.params.rideId;
-//   const userId = req.user._id;
-//   const userRole = req.user.role;
-//   const { status } = req.body;
-
-//   const ride = await RideService.updateRideStatus(
-//     rideId,
-//     status,
-//     userRole,
-//     userId
-//   );
-
-//   res.status(200).json({
-//     success: true,
-//     message: "Ride status updated successfully",
-//     data: ride,
-//   });
-// });
-
 const handleRideAction = catchAsync(async (req: Request, res: Response) => {
   const rideId = req.params.id;
   const { action } = req.body;
-  const driverId = req.user.id;
+  const driverId = req.user?.id;
 
   if (!["accept", "reject"].includes(action)) {
     throw new AppError(400, "Invalid action");
   }
 
-  const result = await RideService.updateRideStatus(
+  const result = await RideService.handleRideAction(
     rideId,
     driverId,
     action as "accept" | "reject"
@@ -134,7 +70,7 @@ const handleRideAction = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: 200,
     success: true,
-    message: `Ride ${action}ed successfully!`,
+    message: `Ride ${action} successfully!`,
     data: result,
   });
 });
@@ -153,11 +89,24 @@ const getDriverEarningsController = catchAsync(
   }
 );
 
+const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
+  const rideId = req.params.id;
+  const { status } = req.body;
+  const result = await RideService.updateRideStatus(rideId, status);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Ride status updated",
+    data: result,
+  });
+});
+
 export const RideController = {
   createRideRequest,
   getAllRides,
-  cancelRide,
   handleRideAction,
   getDriverEarningsController,
   getRideHistory,
+  updateRideStatus,
 };

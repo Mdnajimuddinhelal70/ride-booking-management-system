@@ -37,122 +37,30 @@ const getRideHistory = async (riderEmail: string) => {
   return rides;
 };
 
-const cancelRide = async (rideId: string, userId: string) => {
-  const ride = await Ride.findById(rideId);
-
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found!");
-  }
-
-  if (ride.riderId.toString() !== userId.toString()) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      "Unauthorized to cancel this ride!"
-    );
-  }
-
-  const now = new Date();
-  const requestedAt = new Date(ride.requestedAt);
-  const diffInMinutes = (now.getTime() - requestedAt.getTime()) / (1000 * 60);
-
-  if (diffInMinutes > 10) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Cancellation window expired!");
-  }
-
-  ride.status = "cancelled";
-  ride.updatedAt = new Date();
-
-  await ride.save();
-  return ride;
-};
-
-// const acceptRide = async (rideId: string, driverId: string) => {
-//   const ride = await Ride.findById(rideId);
-
-//   if (!ride) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
-//   }
-
-//   if (ride.status !== "requested") {
-//     throw new AppError(
-//       httpStatus.BAD_REQUEST,
-//       "Ride is not available for acceptance"
-//     );
-//   }
-
-//   ride.status = "accepted";
-//   ride.driverId = new Types.ObjectId(driverId);
-//   await ride.save();
-
-//   return ride;
-// };
-
-// const rejectRide = async (rideId: string, driverId: string) => {
-//   const ride = await Ride.findById(rideId);
-
-//   if (!ride) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found");
-//   }
-
-//   if (ride.status !== "requested") {
-//     throw new AppError(
-//       httpStatus.BAD_REQUEST,
-//       "Ride is not available for rejection"
-//     );
-//   }
-
-//   ride.status = "rejected";
-//   ride.driverId = new Types.ObjectId(driverId).toString();
-//   await ride.save();
-
-//   return ride;
-// };
-
-// const updateRideStatus = async (
-//   rideId: string,
-//   status: RideStatus,
-//   userRole: string,
-//   userId: string
-// ) => {
-//   let ride;
-
-//   if (userRole === UserRole.Admin) {
-//     ride = await Ride.findById(rideId);
-//   } else if (userRole === UserRole.Driver) {
-//     ride = await Ride.findOne({ _id: rideId, driverId: userId });
-//   }
-
-//   if (!ride) {
-//     throw new AppError(httpStatus.NOT_FOUND, "Ride not found or access denied");
-//   }
-
-//   const historyEntry = {
-//     status,
-//     updatedAt: new Date(),
-//   };
-
-//   ride.statusHistory = ride.statusHistory || [];
-//   ride.statusHistory.push(historyEntry);
-//   ride.status = status;
-
-//   await ride.save();
-//   return ride;
-// };
-
-const updateRideStatus = async (
+const handleRideAction = async (
   rideId: string,
   driverId: string,
   action: "accept" | "reject"
 ) => {
   const ride = await Ride.findById(rideId);
+
   if (!ride) throw new AppError(404, "Ride not found");
-  if (ride.status !== "requested")
-    throw new AppError(400, "Ride is not available");
 
-  ride.status = action === "accept" ? "accepted" : "rejected";
-  ride.driverId = driverId;
+  if (ride.status !== "requested") {
+    throw new AppError(400, "Ride is already processed by another driver");
+  }
+
+  if (action === "accept") {
+    ride.status = "accepted";
+    ride.driverId = driverId;
+  }
+
+  if (action === "reject") {
+    ride.status = "rejected";
+    ride.driverId = null;
+  }
+
   await ride.save();
-
   return ride;
 };
 
@@ -171,11 +79,32 @@ const getDriverEarnings = async (driverId: string) => {
   };
 };
 
+const updateRideStatus = async (rideId: string, status: string) => {
+  const allowedStatus = [
+    "accepted",
+    "picked_up",
+    "in_transit",
+    "completed",
+    "cancelled",
+  ];
+
+  if (!allowedStatus.includes(status)) {
+    throw new AppError(httpStatus.FORBIDDEN, "Invalid ride status");
+  }
+
+  const ride = await Ride.findByIdAndUpdate(rideId, { status }, { new: true });
+  if (!ride) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Ride Not Found!");
+  }
+
+  return ride;
+};
+
 export const RideService = {
   createRideRequest,
   getAllRides,
-  cancelRide,
-  updateRideStatus,
+  handleRideAction,
   getDriverEarnings,
   getRideHistory,
+  updateRideStatus,
 };

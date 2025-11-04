@@ -22,16 +22,17 @@ router.get(
   checkAuth(UserRole.Rider),
   RideController.getRideHistory
 );
+
 router.patch(
-  "/:id/cancel",
-  checkAuth(UserRole.Rider),
-  RideController.cancelRide
+  "/:id/action",
+  checkAuth(UserRole.Driver),
+  RideController.handleRideAction
 );
 
 router.patch(
-  ":id/action",
+  "/:id/updateStatus",
   checkAuth(UserRole.Driver),
-  RideController.handleRideAction
+  RideController.updateRideStatus
 );
 
 router.get(
