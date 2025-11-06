@@ -1,5 +1,6 @@
 // services/driver.service.ts
 
+import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { Ride } from "../rider/ride.model";
 import { AvailabilityStatus } from "../user/user.interface";
@@ -12,6 +13,14 @@ const getDrivers = async (role: string, email: string) => {
   } else {
     return await Driver.find({ email });
   }
+};
+
+const getRideById = async (rideId: string) => {
+  const ride = await Ride.findById(rideId);
+  if (!ride) {
+    throw new AppError(httpStatus.NOT_FOUND, "Ride not found!");
+  }
+  return ride;
 };
 
 const getRequestedRide = async () => {
@@ -59,4 +68,5 @@ export const DriverService = {
   updateAvailability,
   updateStatus,
   getRequestedRide,
+  getRideById,
 };

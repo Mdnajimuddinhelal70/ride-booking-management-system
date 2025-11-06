@@ -90,9 +90,11 @@ const getDriverEarningsController = catchAsync(
 );
 
 const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
-  const rideId = req.params.id;
   const { status } = req.body;
-  const result = await RideService.updateRideStatus(rideId, status);
+  const rideId = req.params.id;
+  const driverId = req.user?.id;
+
+  const result = await RideService.updateRideStatus(rideId, driverId, status);
 
   sendResponse(res, {
     success: true,
@@ -102,6 +104,31 @@ const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// const updateRideStatus = catchAsync(async (req: Request, res: Response) => {
+//   const { status } = req.body;
+//   const rideId = req.params.id;
+//   const result = await RideService.updateRideStatus(rideId, status);
+
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: 200,
+//     message: "Ride status updated",
+//     data: result,
+//   });
+// });
+
+const getActiveRide = catchAsync(async (req: Request, res: Response) => {
+  const driverId = req.user.id;
+
+  const ride = await RideService.getActiveRide(driverId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Active ride fetched successfully",
+    data: ride,
+  });
+});
 export const RideController = {
   createRideRequest,
   getAllRides,
@@ -109,4 +136,5 @@ export const RideController = {
   getDriverEarningsController,
   getRideHistory,
   updateRideStatus,
+  getActiveRide,
 };

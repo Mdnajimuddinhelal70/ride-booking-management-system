@@ -18,6 +18,8 @@ router.patch(
   DriverController.updateAvailability
 );
 
+router.get("/:id", checkAuth(UserRole.Driver), DriverController.getRideById);
+
 router.patch(
   "/:id/update-status",
   checkAuth(UserRole.Admin, UserRole.Driver),

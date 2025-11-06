@@ -17,6 +17,8 @@ router.get(
   RideController.getAllRides
 );
 
+// router.get("/:id", checkAuth(UserRole.Driver), RideController.getRideById);
+
 router.get(
   "/rideHistory",
   checkAuth(UserRole.Rider),
@@ -29,8 +31,13 @@ router.patch(
   RideController.handleRideAction
 );
 
+// router.patch(
+//   "/:id/updateStatus",
+//   checkAuth(UserRole.Driver),
+//   RideController.updateRideStatus
+// );
 router.patch(
-  "/:id/updateStatus",
+  "/:id/status",
   checkAuth(UserRole.Driver),
   RideController.updateRideStatus
 );
@@ -39,6 +46,11 @@ router.get(
   "/earnings",
   checkAuth(UserRole.Driver),
   RideController.getDriverEarningsController
+);
+router.get(
+  "/active-ride",
+  checkAuth(UserRole.Driver),
+  RideController.getActiveRide
 );
 
 export const RideRoutes = router;
