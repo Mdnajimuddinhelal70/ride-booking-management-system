@@ -16,19 +16,6 @@ const getDrivers = catchAsync(async (req: Request, res: Response) => {
     data: drivers,
   });
 });
-const getRideById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  console.log("Here is your ride id=>", id);
-  const result = await DriverService.getRideById(id);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "Ride fetched successfully",
-    data: result,
-  });
-});
-
 const updateAvailability = catchAsync(async (req: Request, res: Response) => {
   const driverId = req.user.id;
 
@@ -86,10 +73,28 @@ const updateStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getRideHistory = catchAsync(async (req: Request, res: Response) => {
+  const { page = 1, limit = 10, status } = req.query;
+
+  const result = await DriverService.getRideHistory({
+    driverId: req.user?.id,
+    page: Number(page),
+    limit: Number(limit),
+    status: status as string,
+  });
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Ride history fetched successfully",
+    data: result,
+  });
+});
+
 export const DriverController = {
   getDrivers,
   updateAvailability,
   updateStatus,
   getRequestedRides,
-  getRideById,
+  getRideHistory,
 };

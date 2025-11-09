@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // services/driver.service.ts
 
-import httpStatus from "http-status-codes";
 import AppError from "../../errorHelpers/AppError";
 import { Ride } from "../rider/ride.model";
 import { AvailabilityStatus } from "../user/user.interface";
@@ -13,14 +13,6 @@ const getDrivers = async (role: string, email: string) => {
   } else {
     return await Driver.find({ email });
   }
-};
-
-const getRideById = async (rideId: string) => {
-  const ride = await Ride.findById(rideId);
-  if (!ride) {
-    throw new AppError(httpStatus.NOT_FOUND, "Ride not found!");
-  }
-  return ride;
 };
 
 const getRequestedRide = async () => {
@@ -63,10 +55,42 @@ const updateStatus = async (driverId: string, isApproved: boolean) => {
   }
   return updatedDriver;
 };
+const getRideHistory = async ({
+  driverId,
+  page,
+  limit,
+  status,
+}: {
+  driverId: string;
+  page: number;
+  limit: number;
+  status?: string;
+}) => {
+  const filter: any = { driverId };
+
+  if (status) {
+    filter.status = status;
+  }
+
+  const rides = await Ride.find(filter)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  const total = await Ride.countDocuments(filter);
+
+  return {
+    rides,
+    total,
+    currentPage: page,
+    totalPages: Math.ceil(total / limit),
+  };
+};
+
 export const DriverService = {
   getDrivers,
   updateAvailability,
   updateStatus,
   getRequestedRide,
-  getRideById,
+  getRideHistory,
 };

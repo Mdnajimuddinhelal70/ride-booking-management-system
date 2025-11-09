@@ -18,12 +18,11 @@ router.patch(
   DriverController.updateAvailability
 );
 
-router.get("/:id", checkAuth(UserRole.Driver), DriverController.getRideById);
-
 router.patch(
   "/:id/update-status",
   checkAuth(UserRole.Admin, UserRole.Driver),
   DriverController.updateStatus
 );
+router.get("/history", checkAuth(), DriverController.getRideHistory);
 
 export const DriverRoute = router;
