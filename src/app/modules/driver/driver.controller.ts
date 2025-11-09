@@ -91,10 +91,35 @@ const getRideHistory = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getDriverProfile = catchAsync(async (req: Request, res: Response) => {
+  const driverId = req.user?.id;
+  const result = await DriverService.getDriverProfile(driverId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Profile fetched successfully",
+    data: result,
+  });
+});
+
+const driverUpdateProfile = catchAsync(async (req: Request, res: Response) => {
+  const driverId = req.user?.id;
+  const result = await DriverService.driverUpdateProfile(driverId, req.body);
+
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: "Profile updated successfully",
+    data: result,
+  });
+});
+
 export const DriverController = {
   getDrivers,
   updateAvailability,
   updateStatus,
   getRequestedRides,
   getRideHistory,
+  getDriverProfile,
+  driverUpdateProfile,
 };

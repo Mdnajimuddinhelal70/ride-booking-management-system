@@ -5,6 +5,7 @@ import AppError from "../../errorHelpers/AppError";
 import { Ride } from "../rider/ride.model";
 import { AvailabilityStatus } from "../user/user.interface";
 import { User } from "../user/user.model";
+import { IDriver } from "./driver.interface";
 import { Driver } from "./driver.model";
 
 const getDrivers = async (role: string, email: string) => {
@@ -87,10 +88,34 @@ const getRideHistory = async ({
   };
 };
 
+const getDriverProfile = async (driverId: string) => {
+  if (!driverId) {
+    throw new AppError(400, "Driver ID not found!");
+  }
+
+  const driver = await User.findById(driverId).select(
+    "name email phoneNumber role vehicleInfo"
+  );
+
+  if (!driver) {
+    throw new AppError(404, "Driver not found!");
+  }
+
+  return driver;
+};
+
+const driverUpdateProfile = async (
+  driverId: string,
+  payload: Partial<IDriver>
+) => {
+  return await Driver.findByIdAndUpdate(driverId, payload, { new: true });
+};
 export const DriverService = {
   getDrivers,
   updateAvailability,
   updateStatus,
   getRequestedRide,
   getRideHistory,
+  getDriverProfile,
+  driverUpdateProfile,
 };

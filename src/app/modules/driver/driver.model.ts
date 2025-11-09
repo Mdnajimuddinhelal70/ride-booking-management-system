@@ -26,6 +26,16 @@ const driverSchema = new Schema<IDriver>(
       type: Boolean,
       default: false,
     },
+    vehicleInfo: {
+      type: {
+        model: String,
+        plateNumber: String,
+        color: String,
+      },
+      required: false,
+    },
+    phone: { type: String },
+    password: { type: String, select: false },
   },
   {
     timestamps: true,

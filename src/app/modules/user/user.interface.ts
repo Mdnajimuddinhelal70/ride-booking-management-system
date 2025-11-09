@@ -10,6 +10,11 @@ export interface IAuthProvider {
   provider: "google" | "credentials";
   providerId: string;
 }
+export interface IVehicleInfo {
+  model?: string;
+  plateNumber?: string;
+  color?: string;
+}
 
 export type AvailabilityStatus = "online" | "offline" | "busy";
 
@@ -22,9 +27,11 @@ export interface IUser {
   newPassword: string;
   phoneNumber?: string;
   address?: string;
-  role: UserRole;
+  role?: UserRole;
+  auths?: IAuthProvider[];
   status?: "Active" | "Blocked";
   availability?: AvailabilityStatus;
+  vehicleInfo?: IVehicleInfo;
   isBlocked?: boolean;
   authProvider?: IAuthProvider;
   createdAt?: Date;

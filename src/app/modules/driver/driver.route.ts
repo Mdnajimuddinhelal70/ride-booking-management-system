@@ -24,5 +24,14 @@ router.patch(
   DriverController.updateStatus
 );
 router.get("/history", checkAuth(), DriverController.getRideHistory);
-
+router.get(
+  "/profile",
+  checkAuth(UserRole.Driver),
+  DriverController.getDriverProfile
+);
+router.put(
+  "/profile",
+  checkAuth(UserRole.Driver),
+  DriverController.driverUpdateProfile
+);
 export const DriverRoute = router;

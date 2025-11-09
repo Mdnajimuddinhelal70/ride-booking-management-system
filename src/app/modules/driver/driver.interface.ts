@@ -6,6 +6,9 @@ export interface IDriver {
   licenseNumber: string;
   availability: "online" | "offline";
   totalEarnings: number;
+  phone: string;
+  password: string;
+  vehicleInfo?: string;
   isApproved: boolean;
   createdAt?: Date;
   updatedAt?: Date;

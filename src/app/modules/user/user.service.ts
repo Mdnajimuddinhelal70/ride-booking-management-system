@@ -6,15 +6,44 @@ import AppError from "../../errorHelpers/AppError";
 import { IAuthProvider, IUser } from "./user.interface";
 import { User } from "./user.model";
 
+// const createUser = async (payload: Partial<IUser>) => {
+//   const { email, password, ...rest } = payload;
+
+//   const isUserExists = await User.findOne({ email });
+
+//   if (isUserExists) {
+//     throw new AppError(httpStatus.BAD_REQUEST, "User Already Exists");
+//   }
+
+//   const hashedPassword = await bcryptjs.hash(
+//     password as string,
+//     Number(envVars.BCRYPT_SALT_ROUND)
+//   );
+
+//   const authProvider: IAuthProvider = {
+//     provider: "credentials",
+//     providerId: email as string,
+//   };
+
+//   const user = await User.create({
+//     email,
+//     password: hashedPassword,
+//     auths: [authProvider],
+//     ...rest,
+//   });
+//   return user;
+// };
+
 const createUser = async (payload: Partial<IUser>) => {
-  const { email, password, ...rest } = payload;
+  const { email, password, role, vehicleInfo, ...rest } = payload;
 
+  // Check if user already exists
   const isUserExists = await User.findOne({ email });
-
   if (isUserExists) {
     throw new AppError(httpStatus.BAD_REQUEST, "User Already Exists");
   }
 
+  // Hash the password
   const hashedPassword = await bcryptjs.hash(
     password as string,
     Number(envVars.BCRYPT_SALT_ROUND)
@@ -25,12 +54,17 @@ const createUser = async (payload: Partial<IUser>) => {
     providerId: email as string,
   };
 
-  const user = await User.create({
+  // Only add vehicleInfo if role is driver
+  const userPayload: Partial<IUser> = {
     email,
     password: hashedPassword,
     auths: [authProvider],
+    role,
     ...rest,
-  });
+    ...(role === "driver" && { vehicleInfo }),
+  };
+
+  const user = await User.create(userPayload);
   return user;
 };
 

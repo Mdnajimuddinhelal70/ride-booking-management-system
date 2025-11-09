@@ -34,6 +34,11 @@ const userSchema = new Schema<IUser>(
       },
       providerId: { type: String },
     },
+    vehicleInfo: {
+      model: { type: String },
+      plateNumber: { type: String },
+      color: { type: String },
+    },
   },
   {
     timestamps: true,
