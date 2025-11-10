@@ -1,26 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
+
+import httpStatus from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import { AdminServices } from "./admin.service";
+import { AdminService } from "./admin.service";
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const { role, status, search } = req.query;
+  const { search, role, status } = req.query;
 
-  const filter: any = {};
-
-  if (role) filter.role = role;
-  if (status) filter.status = status;
-  if (search) {
-    filter.name = { $regex: search, $options: "i" };
-  }
-  const users = await AdminServices.getAllUsers(filter);
+  const result = await AdminService.getAllUsers(
+    search as string,
+    role as string,
+    status as string
+  );
 
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: httpStatus.OK,
     success: true,
-    message: "Users fetched successfully",
-    data: users,
+    message: "All users fetched successfully",
+    data: result,
   });
 });
 
@@ -28,17 +26,38 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
 
-  const updatedUser = await AdminServices.updateUserStatus(id, status);
+  const result = await AdminService.updateUserStatus(
+    id,
+    status as "Active" | "Blocked"
+  );
 
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: httpStatus.OK,
     success: true,
-    message: `User ${status} successfully`,
-    data: updatedUser,
+    message: `User status updated to ${status}`,
+    data: result,
+  });
+});
+
+const updateDriverApproval = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { approval } = req.body;
+
+  const result = await AdminService.updateDriverApproval(
+    id,
+    approval as "Approved" | "Suspended"
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `Driver approval status updated to ${approval}`,
+    data: result,
   });
 });
 
 export const AdminController = {
   getAllUsers,
   updateUserStatus,
+  updateDriverApproval,
 };
