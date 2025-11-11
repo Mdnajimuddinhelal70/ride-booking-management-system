@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import httpStatus from "http-status-codes";
+import { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
+import { Ride } from "../rider/ride.model";
 import { User } from "../user/user.model";
 
 const getAllUsers = async (search?: string, role?: string, status?: string) => {
@@ -53,8 +55,38 @@ const updateDriverApproval = async (
   return driver;
 };
 
+const getAllRides = async (filters: any) => {
+  const query: any = {};
+
+  // status filter
+  if (filters.status) query.status = filters.status;
+
+  // driver filter
+  if (filters.driver) query.driver = new Types.ObjectId(filters.driver);
+
+  // rider filter
+  if (filters.rider) query.rider = new Types.ObjectId(filters.rider);
+
+  // date range filter
+  if (filters.startDate && filters.endDate) {
+    query.createdAt = {
+      $gte: new Date(filters.startDate),
+      $lte: new Date(filters.endDate),
+    };
+  }
+
+  // find with populated driver & rider info
+  const rides = await Ride.find(query)
+    .populate("riderId", "name email")
+    .populate("driverId", "name email")
+    .sort({ createdAt: -1 });
+
+  return rides;
+};
+
 export const AdminService = {
   getAllUsers,
   updateUserStatus,
   updateDriverApproval,
+  getAllRides,
 };

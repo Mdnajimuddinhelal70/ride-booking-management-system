@@ -56,8 +56,20 @@ const updateDriverApproval = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllRides = async (req: Request, res: Response) => {
+  const filters = req.query;
+  const result = await AdminService.getAllRides(filters);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "All rides fetched successfully",
+    data: result,
+  });
+};
+
 export const AdminController = {
   getAllUsers,
   updateUserStatus,
   updateDriverApproval,
+  getAllRides,
 };

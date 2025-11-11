@@ -15,5 +15,6 @@ router.patch(
   checkAuth(UserRole.Admin),
   AdminController.updateDriverApproval
 );
+router.get("/all", checkAuth(UserRole.Admin), AdminController.getAllRides);
 
 export const AdminRoutes = router;
