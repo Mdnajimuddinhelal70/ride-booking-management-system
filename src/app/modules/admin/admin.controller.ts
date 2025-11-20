@@ -67,9 +67,75 @@ const getAllRides = async (req: Request, res: Response) => {
   });
 };
 
+// ========================================================
+const summary = async (req: Request, res: Response) => {
+  // const { startDate, endDate } = req.query;
+  const startDate = req.query.startDate as string | undefined;
+  const endDate = req.query.endDate as string | undefined;
+  const data = await AdminService.getSummary(startDate, endDate);
+  res.json({ success: true, data });
+};
+
+const trends = async (req: Request, res: Response) => {
+  const { metric = "rides", groupBy = "day", startDate, endDate } = req.query;
+
+  const data = await AdminService.getTrends(
+    metric as "rides" | "revenue",
+    groupBy as "day" | "week" | "month",
+    startDate as string,
+    endDate as string
+  );
+  res.json({ success: true, data });
+};
+
+const topDrivers = async (req: Request, res: Response) => {
+  const { startDate, endDate, limit = 10, sortBy = "rides" } = req.query;
+  const data = await AdminService.getTopDrivers(
+    startDate as string,
+    endDate as string,
+    Number(limit),
+    sortBy as "rides"
+  );
+  res.json({ success: true, data });
+};
+
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+
+  const updatedUser = await AdminService.updateProfile(userId, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Profile updated successfully.",
+    data: updatedUser,
+  });
+});
+
+const changePassword = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const { oldPassword, newPassword } = req.body;
+
+  const updatedUser = await AdminService.changePassword(
+    userId,
+    oldPassword,
+    newPassword
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: 201,
+    message: "Password updated successfully.",
+    data: updatedUser,
+  });
+});
 export const AdminController = {
   getAllUsers,
   updateUserStatus,
   updateDriverApproval,
   getAllRides,
+  summary,
+  trends,
+  topDrivers,
+  updateProfile,
+  changePassword,
 };

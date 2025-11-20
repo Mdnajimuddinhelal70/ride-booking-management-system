@@ -16,5 +16,18 @@ router.patch(
   AdminController.updateDriverApproval
 );
 router.get("/all", checkAuth(UserRole.Admin), AdminController.getAllRides);
-
+//============================================
+router.get("/summary", checkAuth(UserRole.Admin), AdminController.summary);
+router.get("/trends", checkAuth(UserRole.Admin), AdminController.trends);
+router.get("/drivers", checkAuth(UserRole.Admin), AdminController.topDrivers);
+router.patch(
+  "/updateProfile",
+  checkAuth(UserRole.Admin),
+  AdminController.updateProfile
+);
+router.patch(
+  "/updatePassword",
+  checkAuth(UserRole.Admin),
+  AdminController.changePassword
+);
 export const AdminRoutes = router;
