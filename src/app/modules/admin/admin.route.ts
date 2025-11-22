@@ -20,13 +20,13 @@ router.get("/all", checkAuth(UserRole.Admin), AdminController.getAllRides);
 router.get("/summary", checkAuth(UserRole.Admin), AdminController.summary);
 router.get("/trends", checkAuth(UserRole.Admin), AdminController.trends);
 router.get("/drivers", checkAuth(UserRole.Admin), AdminController.topDrivers);
-router.patch(
-  "/updateProfile",
+router.put(
+  "/:id/profile",
   checkAuth(UserRole.Admin),
   AdminController.updateProfile
 );
-router.patch(
-  "/updatePassword",
+router.put(
+  "/:id/change-password",
   checkAuth(UserRole.Admin),
   AdminController.changePassword
 );

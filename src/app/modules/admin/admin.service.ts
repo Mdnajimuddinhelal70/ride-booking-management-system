@@ -136,8 +136,7 @@ const getTrends = async (
     if (endDate) match.createdAt.$lte = new Date(endDate);
   }
 
-  // dateTrunc expression (MongoDB 5.0+). If older Mongo, use $dateToString.
-  const dateTruncUnit = groupBy; // 'day'|'week'|'month'
+  const dateTruncUnit = groupBy;
   const groupStage: any = {
     _id: {
       $dateTrunc: { date: "$createdAt", unit: dateTruncUnit },
