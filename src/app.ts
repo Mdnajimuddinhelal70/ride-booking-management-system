@@ -6,6 +6,7 @@ import notFound from "./app/middlewares/notFound";
 import { router } from "./app/routes";
 const app = express();
 
+app.set("trust proxy", 1);
 app.use(
   cors({
     origin: [
