@@ -13,6 +13,7 @@ const loadEnvVariables = () => {
         "NODE_DEV",
         "BCRYPT_SALT_ROUND",
         "NODE_ENV",
+        "FRONTEND_URL",
     ];
     requiredEnvVariables.forEach((key) => {
         if (!process.env[key]) {
@@ -26,6 +27,7 @@ const loadEnvVariables = () => {
         BCRYPT_SALT_ROUND: process.env.BCRYPT_SALT_ROUND,
         JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
         JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES,
+        FRONTEND_URL: process.env.FRONTEND_URL,
     };
 };
 exports.envVars = loadEnvVariables();

@@ -17,6 +17,7 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
+const ride_model_1 = require("../rider/ride.model");
 const driver_service_1 = require("./driver.service");
 const getDrivers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { role, email } = req.user;
@@ -27,32 +28,14 @@ const getDrivers = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, 
         data: drivers,
     });
 }));
-// const updateAvailability = catchAsync(async (req: Request, res: Response) => {
-//   const driverId = req.params.id;
-//   const { availability } = req.body;
-//   if (availability !== "online" && availability !== "offline") {
-//     return sendResponse(res, {
-//       success: false,
-//       statusCode: httpStatus.BAD_REQUEST,
-//       message: "Invalid availability value",
-//       data: null,
-//     });
-//   }
-//   const updatedDriver = await DriverService.updateAvailability(
-//     driverId,
-//     availability
-//   );
-//   sendResponse(res, {
-//     success: true,
-//     statusCode: httpStatus.OK,
-//     message: "Driver availability updated successfully",
-//     data: updatedDriver,
-//   });
-// });
 const updateAvailability = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const driverId = req.user._id;
-    const { availability } = req.body;
-    if (!["online", "offline", "busy"].includes(availability)) {
+    const driverId = req.user.id;
+    const { availability } = req.body || {};
+    const ALLOWED_AVAILABILITY = ["online", "offline", "busy"];
+    if (availability === undefined) {
+        throw new AppError_1.default(400, "Availability is required");
+    }
+    if (!ALLOWED_AVAILABILITY.includes(availability)) {
         throw new AppError_1.default(400, "Invalid availability value");
     }
     const result = yield driver_service_1.DriverService.updateAvailability(driverId, availability);
@@ -61,6 +44,15 @@ const updateAvailability = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(
         statusCode: 200,
         message: `Availability updated to ${availability}`,
         data: result,
+    });
+}));
+const getRequestedRides = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const rides = yield ride_model_1.Ride.find({ status: "requested" }).populate("riderId");
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Requested rides fetched successfully",
+        data: rides,
     });
 }));
 const updateStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -82,8 +74,50 @@ const updateStatus = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0
         data: updatedDriver,
     });
 }));
+const getRideHistory = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { page = 1, limit = 10, status } = req.query;
+    const result = yield driver_service_1.DriverService.getRideHistory({
+        driverId: (_a = req.user) === null || _a === void 0 ? void 0 : _a.id,
+        page: Number(page),
+        limit: Number(limit),
+        status: status,
+    });
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Ride history fetched successfully",
+        data: result,
+    });
+}));
+const getDriverProfile = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const driverId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const result = yield driver_service_1.DriverService.getDriverProfile(driverId);
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: 200,
+        success: true,
+        message: "Profile fetched successfully",
+        data: result,
+    });
+}));
+const driverUpdateProfile = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const driverId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+    const result = yield driver_service_1.DriverService.driverUpdateProfile(driverId, req.body);
+    (0, sendResponse_1.sendResponse)(res, {
+        statusCode: 201,
+        success: true,
+        message: "Profile updated successfully",
+        data: result,
+    });
+}));
 exports.DriverController = {
     getDrivers,
     updateAvailability,
     updateStatus,
+    getRequestedRides,
+    getRideHistory,
+    getDriverProfile,
+    driverUpdateProfile,
 };

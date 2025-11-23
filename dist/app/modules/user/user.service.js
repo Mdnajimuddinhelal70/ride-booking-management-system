@@ -24,19 +24,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const env_1 = require("../../config/env");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const user_model_1 = require("./user.model");
+// const createUser = async (payload: Partial<IUser>) => {
+//   const { email, password, ...rest } = payload;
+//   const isUserExists = await User.findOne({ email });
+//   if (isUserExists) {
+//     throw new AppError(httpStatus.BAD_REQUEST, "User Already Exists");
+//   }
+//   const hashedPassword = await bcryptjs.hash(
+//     password as string,
+//     Number(envVars.BCRYPT_SALT_ROUND)
+//   );
+//   const authProvider: IAuthProvider = {
+//     provider: "credentials",
+//     providerId: email as string,
+//   };
+//   const user = await User.create({
+//     email,
+//     password: hashedPassword,
+//     auths: [authProvider],
+//     ...rest,
+//   });
+//   return user;
+// };
 const createUser = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, password } = payload, rest = __rest(payload, ["email", "password"]);
-    const isUserExist = yield user_model_1.User.findOne({ email });
-    if (isUserExist) {
-        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User Already Exist");
+    const { email, password, role, vehicleInfo } = payload, rest = __rest(payload, ["email", "password", "role", "vehicleInfo"]);
+    // Check if user already exists
+    const isUserExists = yield user_model_1.User.findOne({ email });
+    if (isUserExists) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User Already Exists");
     }
+    // Hash the password
     const hashedPassword = yield bcryptjs_1.default.hash(password, Number(env_1.envVars.BCRYPT_SALT_ROUND));
-    const user = yield user_model_1.User.create(Object.assign({ email, password: hashedPassword }, rest));
+    const authProvider = {
+        provider: "credentials",
+        providerId: email,
+    };
+    // Only add vehicleInfo if role is driver
+    const userPayload = Object.assign(Object.assign({ email, password: hashedPassword, auths: [authProvider], role }, rest), (role === "driver" && { vehicleInfo }));
+    const user = yield user_model_1.User.create(userPayload);
     return user;
 });
 const getAllUsers = (query) => __awaiter(void 0, void 0, void 0, function* () {
@@ -59,13 +90,51 @@ const getAllUsers = (query) => __awaiter(void 0, void 0, void 0, function* () {
 const getUserById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     return yield user_model_1.User.findById(id);
 });
+const updateProfile = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId);
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found!");
+    }
+    // Update name and phone number
+    if (payload.name) {
+        user.name = payload.name;
+    }
+    if (payload.phoneNumber) {
+        user.phoneNumber = payload.phoneNumber;
+    }
+    // Change password if requested
+    if (payload.newPassword) {
+        if (!payload.oldPassword) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Old password is required to change password.");
+        }
+        const isOldPasswordCorrect = yield bcryptjs_1.default.compare(payload.oldPassword, user.password);
+        if (!isOldPasswordCorrect) {
+            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Old password is incorrect.");
+        }
+        // Hash the new password
+        const saltRounds = Number(env_1.envVars.BCRYPT_SALT_ROUND);
+        const hashedNewPassword = yield bcryptjs_1.default.hash(payload.newPassword, saltRounds);
+        user.password = hashedNewPassword;
+    }
+    const updatedUser = yield user.save();
+    return updatedUser;
+});
 const blockOrUnblockUser = (userId, blockStatus) => __awaiter(void 0, void 0, void 0, function* () {
     const updatedUser = yield user_model_1.User.findByIdAndUpdate(userId, { isBlocked: blockStatus }, { new: true });
     return updatedUser;
+});
+const getMe = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId).select("-password");
+    if (!user) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "User not found");
+    }
+    return user;
 });
 exports.UserService = {
     createUser,
     getAllUsers,
     getUserById,
     blockOrUnblockUser,
+    getMe,
+    updateProfile,
 };

@@ -16,9 +16,11 @@ exports.AuthControllers = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
+const setCookies_1 = require("../../utils/setCookies");
 const auth_service_1 = require("./auth.service");
 const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const loginInfo = yield auth_service_1.AuthService.credentialsLogin(req.body);
+    (0, setCookies_1.setAuthCookie)(res, loginInfo); //!Cookie setup from utils file
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
@@ -26,4 +28,17 @@ const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awai
         data: loginInfo,
     });
 }));
-exports.AuthControllers = { credentialsLogin };
+const logout = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+    });
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "User Logged Out Successfully",
+        data: null,
+    });
+}));
+exports.AuthControllers = { credentialsLogin, logout };

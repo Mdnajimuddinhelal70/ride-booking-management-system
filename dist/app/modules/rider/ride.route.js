@@ -6,11 +6,17 @@ const checkAuth_1 = require("../../middlewares/checkAuth");
 const user_interface_1 = require("../user/user.interface");
 const ride_controller_1 = require("./ride.controller");
 const router = (0, express_1.Router)();
-router.post("/request", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Rider), ride_controller_1.RideController.createRide);
-router.get("/all-rides", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin), ride_controller_1.RideController.getAllRides);
-router.patch("/:id/cancel", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Rider), ride_controller_1.RideController.cancelRide);
-router.patch("/:id/accept", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.acceptRide);
-router.patch("/:id/reject", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.rejectRide);
-router.patch("/status/:rideId", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver, user_interface_1.UserRole.Admin), ride_controller_1.RideController.updateRideStatus);
+router.post("/request", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Rider), ride_controller_1.RideController.createRideRequest);
+router.get("/all-rides", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Driver), ride_controller_1.RideController.getAllRides);
+// router.get("/:id", checkAuth(UserRole.Driver), RideController.getRideById);
+router.get("/rideHistory", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Rider), ride_controller_1.RideController.getRideHistory);
+router.patch("/:id/action", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.handleRideAction);
+// router.patch(
+//   "/:id/updateStatus",
+//   checkAuth(UserRole.Driver),
+//   RideController.updateRideStatus
+// );
+router.patch("/:id/status", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.updateRideStatus);
 router.get("/earnings", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.getDriverEarningsController);
+router.get("/active-ride", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), ride_controller_1.RideController.getActiveRide);
 exports.RideRoutes = router;

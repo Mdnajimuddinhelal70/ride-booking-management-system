@@ -13,29 +13,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkAuth = void 0;
-const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const env_1 = require("../config/env");
 const AppError_1 = __importDefault(require("../errorHelpers/AppError"));
 const user_model_1 = require("../modules/user/user.model");
 const jwt_1 = require("../utils/jwt");
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const accessToken = req.headers.authorization;
-        if (!accessToken) {
+        const authHeader = req.headers.authorization || req.cookies.accessToken;
+        if (!authHeader) {
             throw new AppError_1.default(403, "No Token Received");
         }
+        let accessToken = authHeader;
+        if (authHeader.startsWith("Bearer ")) {
+            accessToken = authHeader.split(" ")[1];
+        }
         const verifiedToken = (0, jwt_1.verifyToken)(accessToken, env_1.envVars.JWT_ACCESS_SECRET);
-        const isUserExist = yield user_model_1.User.findOne({ email: verifiedToken.email });
-        if (!isUserExist) {
-            throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "User does not exist");
+        const user = yield user_model_1.User.findById(verifiedToken.userId);
+        if (!user) {
+            throw new AppError_1.default(404, "User not found");
         }
         if (authRoles.length && !authRoles.includes(verifiedToken.role)) {
             throw new AppError_1.default(403, "You are not permitted to view this route!");
         }
         req.user = {
-            _id: isUserExist._id,
-            email: isUserExist.email,
-            role: isUserExist.role,
+            id: user._id.toString(),
+            email: user.email,
+            role: user.role,
         };
         next();
     }

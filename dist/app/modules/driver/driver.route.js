@@ -7,11 +7,10 @@ const user_interface_1 = require("../user/user.interface");
 const driver_controller_1 = require("./driver.controller");
 const router = (0, express_1.Router)();
 router.get("/", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Driver), driver_controller_1.DriverController.getDrivers);
-// router.patch(
-//   "/:id/availability",
-//   checkAuth(UserRole.Driver),
-//   DriverController.updateAvailability
-// );
+router.get("/requested", driver_controller_1.DriverController.getRequestedRides);
 router.patch("/availability", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), driver_controller_1.DriverController.updateAvailability);
 router.patch("/:id/update-status", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin, user_interface_1.UserRole.Driver), driver_controller_1.DriverController.updateStatus);
+router.get("/history", (0, checkAuth_1.checkAuth)(), driver_controller_1.DriverController.getRideHistory);
+router.get("/profile", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), driver_controller_1.DriverController.getDriverProfile);
+router.put("/profile", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Driver), driver_controller_1.DriverController.driverUpdateProfile);
 exports.DriverRoute = router;

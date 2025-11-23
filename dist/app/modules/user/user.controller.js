@@ -65,10 +65,42 @@ const blockOrUnblockUser = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(
         data: updatedUser,
     });
 }));
-// controllers/user.controller.ts
+const updateProfile = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.id;
+    const { name, phoneNumber, oldPassword, newPassword } = req.body;
+    const updatedUser = yield user_service_1.UserService.updateProfile(userId, {
+        name,
+        phoneNumber,
+        oldPassword,
+        newPassword,
+    });
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Profile updated successfully!",
+        data: {
+            name: updatedUser.name,
+            email: updatedUser.email,
+            phoneNumber: updatedUser.phoneNumber,
+            role: updatedUser.role,
+        },
+    });
+}));
+const getMe = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.id;
+    const user = yield user_service_1.UserService.getMe(userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "User profile retrieved successfully",
+        data: user,
+    });
+}));
 exports.UserControllers = {
     createUser,
     getAllUsers,
     getMyProfile,
     blockOrUnblockUser,
+    updateProfile,
+    getMe,
 };

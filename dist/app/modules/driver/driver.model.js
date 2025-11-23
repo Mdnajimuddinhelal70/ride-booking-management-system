@@ -15,7 +15,7 @@ const driverSchema = new mongoose_1.Schema({
     },
     availability: {
         type: String,
-        enum: ["online", "offline"],
+        enum: ["online", "offline", "busy"],
         default: "offline",
     },
     totalEarnings: {
@@ -26,6 +26,16 @@ const driverSchema = new mongoose_1.Schema({
         type: Boolean,
         default: false,
     },
+    vehicleInfo: {
+        type: {
+            model: String,
+            plateNumber: String,
+            color: String,
+        },
+        required: false,
+    },
+    phone: { type: String },
+    password: { type: String, select: false },
 }, {
     timestamps: true,
 });

@@ -14,12 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RideService = void 0;
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
-const mongoose_1 = require("mongoose");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
-const user_interface_1 = require("../user/user.interface");
 const user_model_1 = require("../user/user.model");
 const ride_model_1 = require("./ride.model");
-const createRide = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const createRideRequest = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const availableDriver = yield user_model_1.User.findOne({
         role: "driver",
         availability: "online",
@@ -36,71 +34,27 @@ const createRide = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     return ride;
 });
 const getAllRides = () => __awaiter(void 0, void 0, void 0, function* () {
-    return yield ride_model_1.Ride.find().populate("riderId driverId");
+    return yield ride_model_1.Ride.find();
 });
-const cancelRide = (rideId, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const ride = yield ride_model_1.Ride.findById(rideId);
-    if (!ride) {
-        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found!");
-    }
-    if (ride.riderId.toString() !== userId.toString()) {
-        throw new AppError_1.default(http_status_codes_1.default.UNAUTHORIZED, "Unauthorized to cancel this ride!");
-    }
-    const now = new Date();
-    const requestedAt = new Date(ride.requestedAt);
-    const diffInMinutes = (now.getTime() - requestedAt.getTime()) / (1000 * 60);
-    if (diffInMinutes > 10) {
-        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Cancellation window expired!");
-    }
-    ride.status = "cancelled";
-    ride.updatedAt = new Date();
-    yield ride.save();
-    return ride;
+const getRideHistory = (riderEmail) => __awaiter(void 0, void 0, void 0, function* () {
+    const rides = yield ride_model_1.Ride.find({ riderEmail }).sort({ createdAt: -1 });
+    return rides;
 });
-const acceptRide = (rideId, driverId) => __awaiter(void 0, void 0, void 0, function* () {
+const handleRideAction = (rideId, driverId, action) => __awaiter(void 0, void 0, void 0, function* () {
     const ride = yield ride_model_1.Ride.findById(rideId);
-    if (!ride) {
-        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found");
-    }
+    if (!ride)
+        throw new AppError_1.default(404, "Ride not found");
     if (ride.status !== "requested") {
-        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Ride is not available for acceptance");
+        throw new AppError_1.default(400, "Ride is already processed by another driver");
     }
-    ride.status = "accepted";
-    ride.driverId = new mongoose_1.Types.ObjectId(driverId);
-    yield ride.save();
-    return ride;
-});
-const rejectRide = (rideId, driverId) => __awaiter(void 0, void 0, void 0, function* () {
-    const ride = yield ride_model_1.Ride.findById(rideId);
-    if (!ride) {
-        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found");
+    if (action === "accept") {
+        ride.status = "accepted";
+        ride.driverId = driverId;
     }
-    if (ride.status !== "requested") {
-        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Ride is not available for rejection");
+    if (action === "reject") {
+        ride.status = "rejected";
+        ride.driverId = null;
     }
-    ride.status = "rejected";
-    ride.driverId = new mongoose_1.Types.ObjectId(driverId).toString();
-    yield ride.save();
-    return ride;
-});
-const updateRideStatus = (rideId, status, userRole, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    let ride;
-    if (userRole === user_interface_1.UserRole.Admin) {
-        ride = yield ride_model_1.Ride.findById(rideId);
-    }
-    else if (userRole === user_interface_1.UserRole.Driver) {
-        ride = yield ride_model_1.Ride.findOne({ _id: rideId, driverId: userId });
-    }
-    if (!ride) {
-        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found or access denied");
-    }
-    const historyEntry = {
-        status,
-        updatedAt: new Date(),
-    };
-    ride.statusHistory = ride.statusHistory || [];
-    ride.statusHistory.push(historyEntry);
-    ride.status = status;
     yield ride.save();
     return ride;
 });
@@ -113,12 +67,65 @@ const getDriverEarnings = (driverId) => __awaiter(void 0, void 0, void 0, functi
         rides: completedRides,
     };
 });
+// const updateRideStatus = async (rideId: string, status: string) => {
+//   const allowedStatus = [
+//     "accepted",
+//     "picked_up",
+//     "in_transit",
+//     "completed",
+//     "cancelled",
+//   ];
+//   if (!allowedStatus.includes(status)) {
+//     throw new AppError(httpStatus.FORBIDDEN, "Invalid ride status");
+//   }
+//   const ride = await Ride.findByIdAndUpdate(rideId, { status }, { new: true });
+//   if (!ride) {
+//     throw new AppError(httpStatus.BAD_REQUEST, "Ride Not Found!");
+//   }
+//   return ride;
+// };
+const allowedStatusOrder = [
+    "accepted",
+    "picked_up",
+    "in_transit",
+    "completed",
+];
+const updateRideStatus = (rideId, driverId, newStatus) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const ride = yield ride_model_1.Ride.findById(rideId);
+    if (!ride) {
+        throw new AppError_1.default(http_status_codes_1.default.NOT_FOUND, "Ride not found!");
+    }
+    // Check ride belongs to driver
+    if (((_a = ride.driverId) === null || _a === void 0 ? void 0 : _a.toString()) !== driverId) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "You are not the driver of this ride");
+    }
+    // Sequence Check
+    const currentIndex = allowedStatusOrder.indexOf(ride.status);
+    const newIndex = allowedStatusOrder.indexOf(newStatus);
+    if (newIndex !== currentIndex + 1) {
+        throw new AppError_1.default(http_status_codes_1.default.BAD_REQUEST, "Invalid status sequence");
+    }
+    ride.status = newStatus;
+    yield ride.save();
+    return ride;
+});
+const getActiveRide = (driverId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!driverId) {
+        throw new AppError_1.default(http_status_codes_1.default.FORBIDDEN, "Driver Not Found!");
+    }
+    const activeRide = yield ride_model_1.Ride.findOne({
+        driverId,
+        status: { $in: ["accepted", "picked_up", "in_transit"] },
+    });
+    return activeRide;
+});
 exports.RideService = {
-    createRide,
+    createRideRequest,
     getAllRides,
-    cancelRide,
-    acceptRide,
-    rejectRide,
-    updateRideStatus,
+    handleRideAction,
     getDriverEarnings,
+    getRideHistory,
+    updateRideStatus,
+    getActiveRide,
 };

@@ -39,9 +39,12 @@ const rideSchema = new mongoose_1.Schema({
     ],
     riderId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     ridePrice: { type: Number, default: 0 },
+    riderEmail: {
+        type: String,
+        required: true,
+    },
     driverId: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", default: null },
     requestedAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date },
 }, {
     timestamps: true,
     versionKey: false,

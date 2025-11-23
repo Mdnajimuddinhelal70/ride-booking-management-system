@@ -8,6 +8,7 @@ const user_interface_1 = require("./user.interface");
 const router = (0, express_1.Router)();
 router.post("/register", user_controller_1.UserControllers.createUser);
 router.get("/all-users", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin), user_controller_1.UserControllers.getAllUsers);
-router.get("/me", (0, checkAuth_1.checkAuth)(), user_controller_1.UserControllers.getMyProfile);
+router.patch("/update-profile", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.UserRole)), user_controller_1.UserControllers.updateProfile);
+router.get("/me", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.UserRole)), user_controller_1.UserControllers.getMe);
 router.patch("/block-unblock/:id", (0, checkAuth_1.checkAuth)(user_interface_1.UserRole.Admin), user_controller_1.UserControllers.blockOrUnblockUser);
 exports.UserRoutes = router;
