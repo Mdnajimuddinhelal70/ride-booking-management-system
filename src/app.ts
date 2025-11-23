@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "https://ride-booking-management-system-fron-tau.vercel.app",
-      // "http://localhost:5173",
+      "http://localhost:5173",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,

@@ -11,7 +11,10 @@ const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const routes_1 = require("./app/routes");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
-    origin: ["https://ride-booking-management-system-fron.vercel.app"],
+    origin: [
+        "https://ride-booking-management-system-fron-tau.vercel.app",
+        "http://localhost:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 }));
