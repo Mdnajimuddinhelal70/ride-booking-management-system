@@ -26,8 +26,6 @@ const logout = catchAsync(
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      domain: "ride-booking-management-system.vercel.app",
-      path: "/",
     });
     sendResponse(res, {
       success: true,

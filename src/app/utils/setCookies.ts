@@ -10,8 +10,6 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      domain: "ride-booking-management-system.vercel.app",
-      path: "/",
     });
   }
 };
