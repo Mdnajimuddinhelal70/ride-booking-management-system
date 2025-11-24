@@ -10,6 +10,7 @@ const globalErrorHandller_1 = require("./app/middlewares/globalErrorHandller");
 const notFound_1 = __importDefault(require("./app/middlewares/notFound"));
 const routes_1 = require("./app/routes");
 const app = (0, express_1.default)();
+app.set("trust proxy", 1);
 app.use((0, cors_1.default)({
     origin: [
         "https://ride-booking-management-system-fron-tau.vercel.app",
